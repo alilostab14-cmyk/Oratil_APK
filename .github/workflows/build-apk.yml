@@ -1,0 +1,35 @@
+name: Generation APK Automatique
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Recuperer le code
+      uses: actions/checkout@v4
+
+    - name: Configurer Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Compiler en APK
+      run: |
+        if [ -f "gradlew" ]; then
+          chmod +x gradlew && ./gradlew assembleDebug
+        elif [ -d "android" ] && [ -f "android/gradlew" ]; then
+          cd android && chmod +x gradlew && ./gradlew assembleDebug
+        else
+          echo "Fichiers de build Gradle introuvables. Vérifiez la structure."
+        fi
+
+    - name: Sauvegarder l'APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: MonApplication-APK
+        path: "**/*.apk"
