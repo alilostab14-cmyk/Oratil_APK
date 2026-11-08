@@ -13,24 +13,18 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Configurer Java
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Compiler en APK
+    - name: Forcer la compilation du projet Android
       run: |
-        if [ -f "gradlew" ]; then
-          chmod +x gradlew && ./gradlew assembleDebug
-        elif [ -d "android" ] && [ -f "android/gradlew" ]; then
-          cd android && chmod +x gradlew && ./gradlew assembleDebug
-        else
-          echo "Fichiers de build Gradle introuvables. Vérifiez la structure."
-        fi
+        chmod +x gradlew || echo "Pas de gradlew à la racine"
+        ./gradlew assembleDebug --stacktrace || gradle assembleDebug
 
-    - name: Sauvegarder l'APK
+    - name: Sauvegarder l'APK genere
       uses: actions/upload-artifact@v4
       with:
         name: MonApplication-APK
-        path: "app/build/outputs/apk/debug/*.apk"
-
+        path: "**/*.apk"
